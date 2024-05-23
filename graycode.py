@@ -23,7 +23,6 @@ def get_graycode(n):
     for i in range(np.size(arr)):
         temp = int(arr[i],2)
         arr[i] = temp
-
     return arr
 
 #return delete order using by two level unitary matrix
@@ -39,45 +38,17 @@ def get_deleteorder(graycode):
     return del_arr
 
 #return binary array ex [['1', '9'], ['9', '1'], ['0', '9'], ['1', '9'], ['9', '1'], ['1', '9']]
+#above array '1''s form str, so later use this int('1')
 # 1 = control bit, 0 = anti control bit, 9 = target bit
 def get_twoleveltype(deleteorder, n):
     del_arr = deleteorder
     type_arr = []
     for i in range(len(del_arr)):
-        x = format(del_arr[i][1], f'0{n}b')
+        x = format(del_arr[i][1], f'0{n}b')     # f'0{n}b' , transform decimal to n position binary
         y = format(del_arr[i][2], f'0{n}b')
-        print(x,y)
         for j in range(n):
             if x[j] != y[j]:
                 temp = list(x)
                 temp[j] = '9'
                 type_arr.append(temp)
     return type_arr
-#test set
-'''
-matrix_8 = np.array([
-[0,0,0,0,-1,0,0,0],
-[0,0,0,0,0,-1,0,0],
-[0,0,0,0,0,0,0,-1],
-[0,0,0,0,0,0,-1,0],
-[1,0,0,0,0,0,0,0],
-[0,1,0,0,0,0,0,0],
-[0,0,0,1,0,0,0,0],
-[0,0,1,0,0,0,0,0]])
-
-matrix_4 = (1/2)*np.array([
-[1,1,1,1],
-[1,1j,-1,-1j],
-[1,-1,1,-1],
-[1,-1j,-1,1j]])
-
-print(np.matmul(matrix_4,matrix_4.conjugate().transpose()))
-'''
-n = 2
-gc_arr = get_graycode(n)
-del_arr = get_deleteorder(gc_arr)
-type_arr = get_twoleveltype(del_arr, n)
-print('asfd')
-print(type_arr)
-
-
