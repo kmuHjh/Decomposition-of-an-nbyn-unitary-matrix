@@ -11,7 +11,6 @@ def recursive(arr):
         temp = str(arr[i])
         temp = '1' + temp
         new_arr.append(temp)
-
     return new_arr        
 
 #return gray code decimal array
