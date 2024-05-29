@@ -1,27 +1,24 @@
 import graycode as gc
 import numpy as np
+from scipy.linalg import eig
+
+
 def make_twolevel(matrix, del_arr): 
-    print(del_arr)
     x = matrix[del_arr[1]][del_arr[0]]
     y = matrix[del_arr[2]][del_arr[0]]
+    
     r = np.sqrt(np.abs(x)**2 + np.abs(y)**2)
-    print(x,y)
-    x1 = np.real(x)
-    x2 = np.imag(x)
-    y1 = np.real(y)
-    y2 = np.imag(y)
 
     A = np.array([
-        [x1, -x2, y1, -y2],
-        [x2, x1, y2, y1],
-        [y1, y2, -x1, -x2],
-        [y2, -y1, -x2, x1]
+        [np.real(x), -np.imag(x), np.real(y), -np.imag(y)],
+        [np.imag(x), np.real(x), np.imag(y), np.real(y)],
+        [np.real(y), np.imag(y), -np.real(x), -np.imag(x)],
+        [np.imag(y), -np.real(y), -np.imag(x), np.real(x)]
         ], dtype=float)
     
     B = np.array([r, 0, 0, 0], dtype=float)
     
-    solution = np.linalg.lstsq(A, B, rcond=None)[0]
-    a1, a2, b1, b2 = solution
+    a1, a2, b1, b2 = np.linalg.lstsq(A, B, rcond=None)[0]
 
     twolevel = np.identity((np.size(matrix[0])), dtype = complex)
     a = a1 + 1j*a2
@@ -35,13 +32,54 @@ def make_twolevel(matrix, del_arr):
     return twolevel
 
 def decomposition(matrix):
+    twolevel_arr = []
+    return_type_arr = []
+    return_tlform = []
     n = int(np.log2(matrix.shape[0]))
     gc_arr = gc.get_graycode(n)
     del_arr = gc.get_deleteorder(gc_arr)
     type_arr = gc.get_twoleveltype(del_arr, n)
-    temp = make_twolevel(matrix, del_arr[0])
-    print(temp)
-    print(np.matmul(temp, matrix))
+    for i in range(len(del_arr)):
+        if (np.abs(matrix[del_arr[i][2]][del_arr[i][0]]) == 0):
+            continue
+        temp = make_twolevel(matrix, del_arr[i])
+        twolevel_arr.append(temp.conjugate().transpose())
+        return_type_arr.append(type_arr[i])
+        return_tlform.append(del_arr[i])
+        matrix = np.matmul(temp, matrix)
+
+        temp_2 = get_Ugate(temp.conjugate().transpose(), del_arr[i])
+        print(temp_2)
+        print("da")
+        print(get_sqrtU(temp_2))
+        print("db")
+        temp_3 = get_sqrtU(temp_2)
+        print(get_sqrtU(temp_3))
+    return twolevel_arr, return_type_arr, return_tlform
+
+def get_Ugate(matrix, tlform):
+    ugate = np.identity(2, dtype = complex)
+    x = tlform[1]
+    y = tlform[2]
+    if x>y:
+        temp = x
+        x = y
+        y = temp
+    ugate[0][0] = matrix[x][x]
+    ugate[0][1] = matrix[x][y]
+    ugate[1][0] = matrix[y][x]
+    ugate[1][1] = matrix[y][y]
+    return ugate
+
+def get_sqrtU(matrix):
+    eigvals, eigvecs = eig(matrix)
+
+    sqrt_eigvals = np.sqrt(eigvals)
+    sqrt_Lambda = np.diag(sqrt_eigvals)
+    sqrtU = eigvecs @ sqrt_Lambda @ np.linalg.inv(eigvecs)
+    return sqrtU
+
+
 #test set
 
 matrix_8 = np.array([
@@ -62,4 +100,7 @@ matrix_4 = (1/2)*np.array([
 
 
 
-decomposition(matrix_4)
+temp_arr, temp_arr2, temp_arr3 = decomposition(matrix_8)
+
+
+
