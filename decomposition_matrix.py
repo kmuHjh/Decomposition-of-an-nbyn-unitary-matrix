@@ -61,33 +61,12 @@ def get_Ugate(matrix, tlform):
 #U to sqrt.(U) using by eigvalue decomposition
 def get_sqrtU(matrix):
     eigvals, eigvecs = eig(matrix)
+    print(eigvals)
+    print('a')
+    print(eigvecs)
     sqrt_eigvals = np.sqrt(eigvals)
     sqrt_Lambda = np.diag(sqrt_eigvals)
+    print(np.diag(eigvals))
     sqrtU = eigvecs @ sqrt_Lambda @ np.linalg.inv(eigvecs)
 
     return sqrtU
-
-
-#test set
-
-matrix_8 = np.array([
-[0,0,0,0,-1,0,0,0],
-[0,0,0,0,0,-1,0,0],
-[0,0,0,0,0,0,0,-1],
-[0,0,0,0,0,0,-1,0],
-[1,0,0,0,0,0,0,0],
-[0,1,0,0,0,0,0,0],
-[0,0,0,1,0,0,0,0],
-[0,0,1,0,0,0,0,0]])
-
-matrix_4 = (1/2)*np.array([
-[1,1,1,1],
-[1,1j,-1,-1j],
-[1,-1,1,-1],
-[1,-1j,-1,1j]])
-
-
-
-decomposition_gate(matrix_8)
-
-
