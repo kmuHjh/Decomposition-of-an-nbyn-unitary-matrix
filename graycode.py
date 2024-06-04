@@ -49,5 +49,5 @@ def get_twoleveltype(deleteorder, n):
             if x[j] != y[j]:
                 temp = list(x)
                 temp[j] = '9'
-                type_arr.append(temp)
+                type_arr.append(temp[::-1])
     return type_arr
