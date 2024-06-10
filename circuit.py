@@ -16,21 +16,22 @@ def decomposition_list(qc, matrix):
 def decomposition_nqubit(qc, type_arr, U):
     n_circuit = count_circuit(type_arr)
     X = np.array([[0, 1],[1, 0]])
-    V = dm.get_sqrtU(U)
+    V = get_sqrtU(U)
     if n_circuit < 2:
         return
-    if n_circuit == 2:
-        decomposition_2qubit(qc, type_arr, U)
-    decomposition_2qubit(qc, circuit_1(type_arr), V)
-    print(circuit_1(type_arr))
-    decomposition_nqubit(qc, circuit_2(type_arr), X)
-    print(circuit_2(type_arr))
-    decomposition_2qubit(qc, circuit_1(type_arr), V.conjugate().transpose())
-    print(circuit_1(type_arr))
-    decomposition_nqubit(qc, circuit_2(type_arr), X)
-    print(circuit_2(type_arr))
-    decomposition_nqubit(qc, circuit_3(type_arr), V)
-    print(circuit_3(type_arr))
+    elif n_circuit == 2:
+          decomposition_2qubit(qc, type_arr, U)
+    else:
+        decomposition_2qubit(qc, circuit_1(type_arr), V)
+        print(circuit_1(type_arr))
+        decomposition_nqubit(qc, circuit_2(type_arr), X)
+        print(circuit_2(type_arr))
+        decomposition_2qubit(qc, circuit_1(type_arr), V.conjugate().transpose())
+        print(circuit_1(type_arr))
+        decomposition_nqubit(qc, circuit_2(type_arr), X)
+        print(circuit_2(type_arr))
+        decomposition_nqubit(qc, circuit_3(type_arr), V)
+        print(circuit_3(type_arr))
 
 
 def decomposition_2qubit(qc, type_arr, U):
