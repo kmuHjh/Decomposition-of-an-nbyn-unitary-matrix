@@ -23,10 +23,13 @@ def make_twolevel(matrix, del_arr):
     twolevel[del_arr[1]][del_arr[2]] = b
     twolevel[del_arr[2]][del_arr[1]] = -np.conjugate(b)
     twolevel[del_arr[2]][del_arr[2]] = np.conjugate(a)
-
     return twolevel
 
 def decomposition_matrix(matrix):
+    n = int((matrix.shape[0]))
+    final = ((n*(n-1))/2)-1
+    det = (np.linalg.det(matrix)).conjugate()
+    cnt = 0
     twolevel_arr = []
     return_type_arr = []
     return_tlform = []
@@ -36,13 +39,19 @@ def decomposition_matrix(matrix):
     type_arr = gc.get_twoleveltype(del_arr, n)
     for i in range(len(del_arr)):
         if (np.abs(matrix[del_arr[i][2]][del_arr[i][0]]) == 0):
+            cnt += 1
             continue
         temp = make_twolevel(matrix, del_arr[i])
+        if cnt == final:
+            x = del_arr[i][2]
+            y = del_arr[i][1]
+            temp[x][x] = det * temp[x][x]
+            temp[x][y] = det * temp[x][y]
         twolevel_arr.append(temp.conjugate().transpose())
         return_type_arr.append(type_arr[i])
         return_tlform.append(del_arr[i])
         matrix = np.matmul(temp, matrix)
-
+        cnt += 1
     return twolevel_arr, return_type_arr, return_tlform
 
 def get_Ugate(matrix, tlform):
@@ -57,7 +66,6 @@ def get_Ugate(matrix, tlform):
     ugate[0][1] = matrix[x][y]
     ugate[1][0] = matrix[y][x]
     ugate[1][1] = matrix[y][y]
-
     return ugate
 
 #U to sqrt.(U) using by eigvalue decomposition
