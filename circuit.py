@@ -10,9 +10,11 @@ import cmath
 def decomposition_list(qc, matrix):
     twolevel_arr, type_arr, tlform_arr = dm.decomposition_matrix(matrix)
     for i in range(len(twolevel_arr)):
+        new_arr = swap(qc, type_arr[i])
         matrix_U = dm.get_Ugate(twolevel_arr[i], tlform_arr[i])
-        decomposition_nqubit(qc, type_arr[i], matrix_U)
-    
+        decomposition_nqubit(qc, new_arr, matrix_U)
+        new_arr = swap(qc, type_arr[i])
+
 def decomposition_nqubit(qc, type_arr, U):
     n_circuit = count_circuit(type_arr)
     X = np.array([[0, 1],[1, 0]])
@@ -30,8 +32,35 @@ def decomposition_nqubit(qc, type_arr, U):
 
 
 def decomposition_2qubit(qc, type_arr, U):
-    print(type_arr)
-
+    alpha, beta, gamma, pi_v = dm.solve_unitary(U)
+    p_control = -1
+    p_target = -1
+    control_type = -1
+    for i in range(len(type_arr)):
+        if type_arr[i] == '9':
+            p_target = i
+            break
+    for i in range(len(type_arr)):
+        if type_arr[i] == '0' or type_arr[i] == '1':
+            p_control = i
+            if type_arr[i] == '0':
+                control_type = 0
+            else:
+                control_type = 1
+            break
+    
+    qc.rz((alpha-gamma)/2, p_target)
+    xgate(qc, control_type, p_control)
+    qc.cx(p_control, p_target)
+    xgate(qc, control_type, p_control)
+    qc.rz((alpha+gamma)/2, p_target)
+    qc.ry(beta/2, p_target)
+    xgate(qc, control_type, p_control)
+    qc.cx(p_control, p_target)
+    xgate(qc, control_type, p_control)
+    qc.ry(-beta/2, p_target)
+    qc.rz(-alpha, p_target)
+    qc.p(pi_v, p_control)
     return 0
 
 #count using qubit
@@ -164,20 +193,29 @@ def count_circuit(type_arr):
     
     return total - n_5 
 
-def swapgate(qc, type_arr):
-    target_position = type_arr.index('9')
+def swap(qc, type_arr):
+    return_arr = type_arr.copy()
+    if type_arr[0] == '9':
+        return type_arr
+    target_position = 9999
+    for i in range(len(type_arr)):
+        if type_arr[i] == '9':
+            target_position = i
+            break
+            
     if type_arr[0] != '9':
         origin_0 = type_arr[0]
-        type_arr[target_position] = origin_0
-        type_arr[0] = '9'
+        return_arr[target_position] = origin_0
+        return_arr[0] = '9'
         qc.cx(target_position, 0)
         qc.cx(0, target_position)
         qc.cx(target_position, 0)
-
+    return return_arr
+    
 #This x gate is for anti control bit.
-def xgate(qc, flag, position):
-    if flag:
-        qc.x(position)
+def xgate(qc, control_type, p_control):
+    if control_type == 0:
+        qc.x(p_control)
 
 def UtoSingle(matrix):
     det = np.linalg.det(matrix)

@@ -1,6 +1,8 @@
 import graycode as gc
 import numpy as np
 from scipy.linalg import eig
+import math
+import cmath
 
 def make_twolevel(matrix, del_arr): 
     x = matrix[del_arr[1]][del_arr[0]]
@@ -66,3 +68,27 @@ def get_sqrtU(matrix):
     sqrtU = eigvecs @ sqrt_Lambda @ np.linalg.inv(eigvecs)
 
     return sqrtU
+
+def solve_unitary(matrix):
+    det = np.linalg.det(matrix)
+    det_re = np.real(det)
+    det_im = np.imag(det)
+    pi_v = (1/2) * math.atan2(det_im,det_re)
+    
+    matrix = matrix/np.exp(1j*pi_v)
+    
+    complex_1 = matrix[0][0]
+    complex_2 = matrix[0][1]
+
+    r_1 = np.abs(complex_1)
+    r_2 = np.abs(complex_2)
+
+    theta_val = math.atan2(r_2, r_1)
+    lambda_val = cmath.phase(complex_1)  
+    mu_val = cmath.phase(complex_2)  
+    
+    alpha = (lambda_val + mu_val)
+    beta = 2*theta_val
+    gamma = lambda_val - mu_val
+    
+    return (alpha), (beta), (gamma), (pi_v)
