@@ -16,26 +16,21 @@ def decomposition_list(qc, matrix):
 def decomposition_nqubit(qc, type_arr, U):
     n_circuit = count_circuit(type_arr)
     X = np.array([[0, 1],[1, 0]])
-    V = get_sqrtU(U)
+    V = dm.get_sqrtU(U)
     if n_circuit < 2:
         return
     elif n_circuit == 2:
-          decomposition_2qubit(qc, type_arr, U)
-    else:
+        decomposition_2qubit(qc, type_arr, U)
+    elif n_circuit >= 3:
         decomposition_2qubit(qc, circuit_1(type_arr), V)
-        print(circuit_1(type_arr))
         decomposition_nqubit(qc, circuit_2(type_arr), X)
-        print(circuit_2(type_arr))
         decomposition_2qubit(qc, circuit_1(type_arr), V.conjugate().transpose())
-        print(circuit_1(type_arr))
         decomposition_nqubit(qc, circuit_2(type_arr), X)
-        print(circuit_2(type_arr))
         decomposition_nqubit(qc, circuit_3(type_arr), V)
-        print(circuit_3(type_arr))
 
 
 def decomposition_2qubit(qc, type_arr, U):
-    
+    print(type_arr)
 
     return 0
 
@@ -55,29 +50,33 @@ def circuit_1(type_arr):
     return_arr = type_arr.copy()
     position_1 = 9999
     position_9 = 9999
+    
     for i in range(len(type_arr)):
         if type_arr[i] == '9':
             position_9 = i
             break
+
     cnt_5 = 0
-    if type_arr[position_9+1] == '5':
-        for i in range(position_9+1, len(type_arr)):
+    if position_9 < len(type_arr) - 1 and type_arr[position_9 + 1] == '5':
+        for i in range(position_9 + 1, len(type_arr)):
             if type_arr[i] == '5':
-                cnt_5 = cnt_5 + 1
+                cnt_5 += 1
             else:
                 break
+    
     if cnt_5 != 0:
-        temp_arr = np.concatenate((type_arr[:position_9+1], type_arr[position_9+1+cnt_5:]))
-        return_arr = circuit_1(temp_arr)
-        if return_arr is None:
-            return
-        return_arr = np.concatenate((return_arr[:position_9+1], ['5']*cnt_5, return_arr[position_9+1:]))
+        for i in range(position_9 + cnt_5 + 1, len(type_arr)):
+            if type_arr[i] == '1' or type_arr[i] == '0':
+                position_1 = i
+                break
+        for i in range(position_1 + 1, len(type_arr)):
+            return_arr[i] = '5'
     else:
         for i in range(len(type_arr)):
-            if type_arr[i] == '1':
-                position = i
+            if type_arr[i] == '1' or type_arr[i] == '0':
+                position_1 = i
                 break
-        for i in range(position+1, len(type_arr)):
+        for i in range(position_1 + 1, len(type_arr)):
             return_arr[i] = '5'
     return return_arr
 
@@ -90,6 +89,7 @@ def circuit_2(type_arr):
         if type_arr[i] == '9':
             position_9 = i
             break
+            
     cnt_5 = 0
     if position_9 < len(type_arr)-1 and type_arr[position_9+1] == '5':
         for i in range(position_9+1, len(type_arr)):
@@ -97,16 +97,29 @@ def circuit_2(type_arr):
                 cnt_5 += 1
             else:
                 break
+    
     if cnt_5 != 0:
+        position_5 = 9999
+        for i in range(len(type_arr)):
+            if type_arr[i] == '5':
+                if i > position_9:
+                    position_5 = i
+                    break
         temp_arr = np.concatenate((type_arr[:position_9 + 1], type_arr[position_9 + 1 + cnt_5:]))
-        return_arr = circuit_2(temp_arr)
-        if return_arr is None:
-            return
-            return_arr = np.concatenate((return_arr[:position_9 + 1], ['5'] * cnt_5, return_arr[position_9 + 1:]))
+        new_return_arr = temp_arr.copy()
+        position_99 = 9999
+        for i in range(len(temp_arr)):
+            if temp_arr[i] == '9':
+                position_99 = i
+                break
+        new_return_arr[position_9] = '5'
+        new_return_arr[position_9+1] = '9'
+        final_arr =  np.concatenate((new_return_arr[:position_5 ], ['5'] * cnt_5, new_return_arr[position_5 :]))
+        return final_arr
     else:
         return_arr[position_9] = '5'
-        for i in range(position_9 + 1, len(type_arr)):
-            return_arr[i] = type_arr[i-1]
+        return_arr[position_9+1] = '9'
+    
     return return_arr
 
 # 91111 -> 95111 , 55911 -> 55951
@@ -114,28 +127,42 @@ def circuit_2(type_arr):
 def circuit_3(type_arr):
     return_arr = type_arr.copy()
     position_9 = 9999
+
     for i in range(len(type_arr)):
         if type_arr[i] == '9':
             position_9 = i
             break
-    
+
     cnt_5 = 0
-    if type_arr[position_9+1] == '5':
-        for i in range(position_9+1, len(type_arr)):
+    if position_9 < len(type_arr) - 1:
+        for i in range(position_9 + 1, len(type_arr)):
             if type_arr[i] == '5':
                 cnt_5 += 1
             else:
                 break
-    
+
     if cnt_5 != 0:
         temp_arr = np.concatenate((type_arr[:position_9 + 1], type_arr[position_9 + 1 + cnt_5:]))
-        return_arr = circuit_3(temp_arr)
-        if return_arr is None:
-            return
-        return_arr = np.concatenate((return_arr[:position_9 + 1], ['5'] * cnt_5, return_arr[position_9 + 1:]))
+        for i in range(len(temp_arr)):
+            if temp_arr[i] == '9':
+                position_99 = i
+                break
+        temp_arr[position_99 + 1] = '5'
+        return_arr = np.concatenate((temp_arr[:position_99 + 1], ['5'] * cnt_5, temp_arr[position_99 + 1:]))
     else:
-        return_arr[position_9 + 1] = '5'
+        if position_9 + 1 < len(return_arr):
+            return_arr[position_9 + 1] = '5'
+    
     return return_arr
+
+def count_circuit(type_arr):
+    total = len(type_arr)
+    n_5 = 0
+    for i in range(total):
+        if type_arr[i] == '5':
+            n_5 = n_5 + 1
+    
+    return total - n_5 
 
 def swapgate(qc, type_arr):
     target_position = type_arr.index('9')
@@ -196,5 +223,8 @@ matrix_4 = (1/2)*np.array([
 [1,-1,1,-1],
 [1,-1j,-1,1j]])
 
-qc = QuantumCircuit(2,2)
-decomposition_list(qc, matrix_4)
+
+qc = QuantumCircuit(4,4)
+type_arr = np.array(['9','1','1'])
+U = np.identity(4)
+decomposition_nqubit(qc, type_arr, U)
