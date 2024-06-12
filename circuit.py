@@ -9,7 +9,7 @@ import cmath
 #main input function
 def decomposition_list(qc, matrix):
     twolevel_arr, type_arr, tlform_arr = dm.decomposition_matrix(matrix)
-    for i in range(len(twolevel_arr)):
+    for i in reversed(range(len(twolevel_arr))):
         new_arr = swap(qc, type_arr[i])
         matrix_U = dm.get_Ugate(twolevel_arr[i], tlform_arr[i])
         decomposition_nqubit(qc, new_arr, matrix_U)
