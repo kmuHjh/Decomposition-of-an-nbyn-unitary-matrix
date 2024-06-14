@@ -27,9 +27,7 @@ def make_twolevel(matrix, del_arr):
 
 def decomposition_matrix(matrix):
     n = int((matrix.shape[0]))
-    final = ((n*(n-1))/2)-1
     det = (np.linalg.det(matrix)).conjugate()
-    cnt = 0
     twolevel_arr = []
     return_type_arr = []
     return_tlform = []
@@ -37,21 +35,22 @@ def decomposition_matrix(matrix):
     gc_arr = gc.get_graycode(n)
     del_arr = gc.get_deleteorder(gc_arr)
     type_arr = gc.get_twoleveltype(del_arr, n)
-    for i in range(len(del_arr)):
+    for i in (range(len(del_arr))):
         if (np.abs(matrix[del_arr[i][2]][del_arr[i][0]]) == 0):
-            cnt += 1
             continue
         temp = make_twolevel(matrix, del_arr[i])
-        if cnt == final:
-            x = del_arr[i][2]
-            y = del_arr[i][1]
-            temp[x][x] = det * temp[x][x]
-            temp[x][y] = det * temp[x][y]
         twolevel_arr.append(temp.conjugate().transpose())
         return_type_arr.append(type_arr[i])
         return_tlform.append(del_arr[i])
-        matrix = np.matmul(temp, matrix)
-        cnt += 1
+        matrix = temp @ matrix
+    final = len(twolevel_arr)-1
+    temp = twolevel_arr[final].conjugate().transpose()
+    x = return_tlform[final][2]
+    y = return_tlform[final][1]
+    temp[x][x] = det * temp[x][x]
+    temp[x][y] = det * temp[x][y]
+    twolevel_arr[final] = temp.conjugate().transpose()
+
     return twolevel_arr, return_type_arr, return_tlform
 
 def get_Ugate(matrix, tlform):
