@@ -48,19 +48,17 @@ def decomposition_2qubit(qc, type_arr, U):
             else:
                 control_type = 1
             break
-    
+            
+    xgate(qc, control_type, p_control)
     qc.rz((alpha-gamma)/2, p_target)
-    xgate(qc, control_type, p_control)
     qc.cx(p_control, p_target)
-    xgate(qc, control_type, p_control)
     qc.rz((alpha+gamma)/2, p_target)
     qc.ry(beta/2, p_target)
-    xgate(qc, control_type, p_control)
     qc.cx(p_control, p_target)
-    xgate(qc, control_type, p_control)
     qc.ry(-beta/2, p_target)
     qc.rz(-alpha, p_target)
     qc.p(pi_v, p_control)
+    xgate(qc, control_type, p_control)
     return 0
 
 #count using qubit
