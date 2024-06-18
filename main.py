@@ -2,31 +2,12 @@ import circuit as cc
 from qiskit import *
 import numpy as np
 from qiskit.quantum_info import Statevector
+import unitary as u
 
-matrix_7 = np.array([
-[0,0,0,0,-1,0,0,0],
-[0,0,0,0,0,-1,0,0],
-[0,0,0,0,0,0,0,-1],
-[0,0,0,0,0,0,-1,0],
-[1,0,0,0,0,0,0,0],
-[0,1,0,0,0,0,0,0],
-[0,0,0,1,0,0,0,0],
-[0,0,1,0,0,0,0,0]])
+bit_num = 32
+target_det = 1j
+matrix = u.generate_unitary_matrix_with_det(bit_num, target_det)
 
-matrix_5 = (1/2)*np.array([
-[1,1,1,1],
-[1,1j,-1,-1j],
-[1,-1,1,-1],
-[1,-1j,-1,1j]])
-
-matrix_t = np.array([
-[1,0,0,0],
-[0,1,0,0],
-[0,0,0,1],
-[0,0,1,0]])
-
-
-matrix = matrix_7
 n = int(np.log2(matrix.shape[0]))
 qc = QuantumCircuit(n,n)
 
